@@ -15,6 +15,7 @@ model Player {
 
   killsPvp            Int   @default(0)
   deathsPvp           Int   @default(0)
+  deathsPve           Int   @default(0)
   deathsSuicide       Int   @default(0)
   kdRatio             Float @default(0)
   currentKillstreak   Int   @default(0)
@@ -27,7 +28,6 @@ model Player {
   sessions           Session[]
   leaderboardEntries LeaderboardEntry[]
 }
-
 
 model KillEvent {
   id        String   @id @default(cuid())
@@ -58,7 +58,6 @@ model KillEvent {
   @@index([timestamp])
 }
 
-
 model Session {
   id       String @id @default(cuid())
   player   Player @relation(fields: [playerId], references: [id])
@@ -70,7 +69,6 @@ model Session {
 
   @@index([playerId])
 }
-
 
 model LeaderboardEntry {
   id       String @id @default(cuid())
