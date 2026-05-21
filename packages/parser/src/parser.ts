@@ -1,14 +1,26 @@
-import { LogEvent, KillEvent, SuicideEvent, ConnectEvent, DisconnectEvent, HitEvent } from './types'
+import {
+    LogEvent,
+    KillEvent,
+    SuicideEvent,
+    ConnectEvent,
+    DisconnectEvent,
+    HitEvent,
+    PveDeathEvent,
+} from './types'
 
 const CONNECTED_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) is connected$/
-const SUICIDE_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) committed suicide$/
-const KILL_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) killed by Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) with (.+?) from ([\d.]+) meters$/
-const HIT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters$/
 const DISCONNECT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) has been disconnected$/
+const KILL_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) killed by Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) with (.+?) from ([\d.]+) meters$/
+const PVE_KILL_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) killed by (.+)$/
+const SUICIDE_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) committed suicide$/
+const BLED_OUT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) bled out$/
+const DIED_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) died\. Stats> Water: [\d.]+ Energy: [\d.]+ Bleed sources: (\d+)$/
+const HIT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters$/
 
 export function parseLogLine(line: string): LogEvent | null {
     let match: RegExpMatchArray | null
 
+    // PvP kill — before PVE_KILL_REGEX
     match = line.match(KILL_REGEX)
     if (match) {
         const [, time, victimName, victimId, victimPosX, victimPosY, victimPosZ, killerName, killerId, killerPosX, killerPosY, killerPosZ, weapon, distance] = match
@@ -30,6 +42,25 @@ export function parseLogLine(line: string): LogEvent | null {
         } as KillEvent
     }
 
+    // PvE kill (zombie, animal, explosion) — after KILL_REGEX
+    match = line.match(PVE_KILL_REGEX)
+    if (match) {
+        const [, time, playerName, playerId, posX, posY, posZ, killedBy] = match
+        const isExplosion = !killedBy.startsWith('Zmb') && !killedBy.startsWith('Animal')
+        return {
+            type: 'pve_death',
+            time,
+            playerName,
+            playerId,
+            posX: parseFloat(posX),
+            posY: parseFloat(posY),
+            posZ: parseFloat(posZ),
+            bleedSources: 0,
+            killedBy: isExplosion ? killedBy : undefined,
+        } as PveDeathEvent
+    }
+
+    // Suicide
     match = line.match(SUICIDE_REGEX)
     if (match) {
         const [, time, playerName, playerId, posX, posY, posZ] = match
@@ -44,6 +75,39 @@ export function parseLogLine(line: string): LogEvent | null {
         } as SuicideEvent
     }
 
+    // Bled out
+    match = line.match(BLED_OUT_REGEX)
+    if (match) {
+        const [, time, playerName, playerId, posX, posY, posZ] = match
+        return {
+            type: 'pve_death',
+            time,
+            playerName,
+            playerId,
+            posX: parseFloat(posX),
+            posY: parseFloat(posY),
+            posZ: parseFloat(posZ),
+            bleedSources: 0,
+        } as PveDeathEvent
+    }
+
+// Died (fall, environnement, etc.)
+    match = line.match(DIED_REGEX)
+    if (match) {
+        const [, time, playerName, playerId, posX, posY, posZ, bleedSources] = match
+        return {
+            type: 'pve_death',
+            time,
+            playerName,
+            playerId,
+            posX: parseFloat(posX),
+            posY: parseFloat(posY),
+            posZ: parseFloat(posZ),
+            bleedSources: parseInt(bleedSources ?? '0'),
+        } as PveDeathEvent
+    }
+
+    // connect
     match = line.match(CONNECTED_REGEX)
     if (match) {
         const [, time, playerName, playerId, posX, posY, posZ] = match
@@ -58,6 +122,7 @@ export function parseLogLine(line: string): LogEvent | null {
         } as ConnectEvent
     }
 
+    // disconnect
     match = line.match(DISCONNECT_REGEX)
     if (match) {
         const [, time, playerName, playerId, posX, posY, posZ] = match
@@ -72,6 +137,7 @@ export function parseLogLine(line: string): LogEvent | null {
         } as DisconnectEvent
     }
 
+    // Hit PvP
     match = line.match(HIT_REGEX)
     if (match) {
         const [, time, victimName, victimId, attackerName, attackerId, bodyPart, damage, ammoType, weapon, distance] = match
