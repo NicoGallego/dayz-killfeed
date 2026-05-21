@@ -1,0 +1,74 @@
+export type LogEventType =
+    | 'kill'
+    | 'suicide'
+    | 'connect'
+    | 'disconnect'
+    | 'hit'
+
+export interface BaseEvent {
+    type: LogEventType
+    time: string
+}
+
+export interface KillEvent extends BaseEvent {
+    type: 'kill'
+    killerName: string
+    killerId: string
+    killerPosX: number
+    killerPosY: number
+    killerPosZ: number
+    victimName: string
+    victimId: string
+    victimPosX: number
+    victimPosY: number
+    victimPosZ: number
+    weapon: string
+    distance: number
+}
+
+export interface SuicideEvent extends BaseEvent {
+    type: 'suicide'
+    playerName: string
+    playerId: string
+    posX: number
+    posY: number
+    posZ: number
+}
+
+export interface ConnectEvent extends BaseEvent {
+    type: 'connect'
+    playerName: string
+    playerId: string
+    posX?: number
+    posY?: number
+    posZ?: number
+}
+
+export interface DisconnectEvent extends BaseEvent {
+    type: 'disconnect'
+    playerName: string
+    playerId: string
+    posX: number
+    posY: number
+    posZ: number
+}
+
+export interface HitEvent extends BaseEvent {
+    type: 'hit'
+    victimName: string
+    victimId: string
+    attackerName: string
+    attackerId: string
+    bodyPart: string
+    damage: number
+    ammoType: string
+    weapon: string
+    distance: number
+}
+
+export type LogEvent =
+    | KillEvent
+    | SuicideEvent
+    | ConnectEvent
+    | DisconnectEvent
+    | HitEvent
