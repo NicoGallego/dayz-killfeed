@@ -17,6 +17,8 @@ export interface KillEvent extends BaseEvent {
     victimPosZ: number
     weapon: string
     distance: number
+    fatalHitZone: string | null
+    ammoType: string | null
 }
 
 export interface PveDeathEvent extends BaseEvent {
@@ -27,7 +29,7 @@ export interface PveDeathEvent extends BaseEvent {
     posY: number
     posZ: number
     bleedSources: number
-    killedBy?: string  // uniquement pour les explosions
+    killedBy?: string
 }
 
 export interface ConnectEvent extends BaseEvent {

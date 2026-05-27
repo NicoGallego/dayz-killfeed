@@ -1,10 +1,9 @@
-import {buildTimestamp} from "./dateUtils";
+import { buildTimestamp } from "./dateUtils";
 import {
     LogEvent,
     KillEvent,
     ConnectEvent,
     DisconnectEvent,
-    HitEvent,
     PveDeathEvent,
 } from "./types";
 
@@ -27,7 +26,9 @@ const DIED_REGEX =
     /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) died\. Stats> Water: [\d.]+ Energy: [\d.]+ Bleed sources: (\d+)$/;
 
 const HIT_REGEX =
-    /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters$/;
+    /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters/;
+
+const lastHitData = new Map<string, { bodyPart: string; ammoType: string }>()
 
 export function parseLogLine(
     line: string,
@@ -35,9 +36,17 @@ export function parseLogLine(
 ): LogEvent | null {
     let match: RegExpMatchArray | null;
 
+    // Hit — before KILL_REGEX to track fatal zone
+    match = line.match(HIT_REGEX);
+    if (match) {
+        const [, , , victimId, , , bodyPart, , ammoType] = match;
+        console.log('HIT TRACKED:', victimId.substring(0, 8), bodyPart, ammoType)
+        lastHitData.set(victimId, { bodyPart, ammoType });
+        return null;
+    }
+
     // PvP kill
     match = line.match(KILL_REGEX);
-
     if (match) {
         const [
             ,
@@ -56,143 +65,88 @@ export function parseLogLine(
             distance,
         ] = match;
 
+        const hitData = lastHitData.get(victimId) ?? null;
+        lastHitData.delete(victimId);
+        console.log('KILL hitData:', hitData)
         return {
             type: "kill",
             timestamp: buildTimestamp(logDate, time),
-
             victimName,
             victimId,
             victimPosX: parseFloat(victimPosX),
             victimPosY: parseFloat(victimPosY),
             victimPosZ: parseFloat(victimPosZ),
-
             killerName,
             killerId,
             killerPosX: parseFloat(killerPosX),
             killerPosY: parseFloat(killerPosY),
             killerPosZ: parseFloat(killerPosZ),
-
             weapon,
             distance: parseFloat(distance),
+            fatalHitZone: hitData?.bodyPart ?? null,
+            ammoType: hitData?.ammoType ?? null,
         } as KillEvent;
     }
 
     // PvE kill
     match = line.match(PVE_KILL_REGEX);
-
     if (match) {
-        const [
-            ,
-            time,
-            playerName,
-            playerId,
-            posX,
-            posY,
-            posZ,
-            killedBy,
-        ] = match;
-
-        const isExplosion =
-            !killedBy.startsWith("Zmb") &&
-            !killedBy.startsWith("Animal");
-
+        const [, time, playerName, playerId, posX, posY, posZ, killedBy] = match;
+        const isExplosion = !killedBy.startsWith("Zmb") && !killedBy.startsWith("Animal");
         return {
             type: "pve_death",
             timestamp: buildTimestamp(logDate, time),
-
             playerName,
             playerId,
-
             posX: parseFloat(posX),
             posY: parseFloat(posY),
             posZ: parseFloat(posZ),
-
             bleedSources: 0,
-
             killedBy: isExplosion ? killedBy : undefined,
         } as PveDeathEvent;
     }
 
     // Bled out
     match = line.match(BLED_OUT_REGEX);
-
     if (match) {
-        const [
-            ,
-            time,
-            playerName,
-            playerId,
-            posX,
-            posY,
-            posZ,
-        ] = match;
-
+        const [, time, playerName, playerId, posX, posY, posZ] = match;
         return {
             type: "pve_death",
             timestamp: buildTimestamp(logDate, time),
-
             playerName,
             playerId,
-
             posX: parseFloat(posX),
             posY: parseFloat(posY),
             posZ: parseFloat(posZ),
-
             bleedSources: 0,
         } as PveDeathEvent;
     }
 
     // Died
     match = line.match(DIED_REGEX);
-
     if (match) {
-        const [
-            ,
-            time,
-            playerName,
-            playerId,
-            posX,
-            posY,
-            posZ,
-            bleedSources,
-        ] = match;
-
+        const [, time, playerName, playerId, posX, posY, posZ, bleedSources] = match;
         return {
             type: "pve_death",
             timestamp: buildTimestamp(logDate, time),
-
             playerName,
             playerId,
-
             posX: parseFloat(posX),
             posY: parseFloat(posY),
             posZ: parseFloat(posZ),
-
             bleedSources: parseInt(bleedSources ?? "0"),
         } as PveDeathEvent;
     }
 
     // Connect
     match = line.match(CONNECTED_REGEX);
-
     if (match) {
-        const [
-            ,
-            time,
-            playerName,
-            playerId,
-            posX,
-            posY,
-            posZ,
-        ] = match;
-
+        const [, time, playerName, playerId, posX, posY, posZ] = match;
         return {
             type: "connect",
             timestamp: buildTimestamp(logDate, time),
-
             playerName,
             playerId,
-
             posX: parseFloat(posX),
             posY: parseFloat(posY),
             posZ: parseFloat(posZ),
@@ -201,67 +155,17 @@ export function parseLogLine(
 
     // Disconnect
     match = line.match(DISCONNECT_REGEX);
-
     if (match) {
-        const [
-            ,
-            time,
-            playerName,
-            playerId,
-            posX,
-            posY,
-            posZ,
-        ] = match;
-
+        const [, time, playerName, playerId, posX, posY, posZ] = match;
         return {
             type: "disconnect",
             timestamp: buildTimestamp(logDate, time),
-
             playerName,
             playerId,
-
             posX: parseFloat(posX),
             posY: parseFloat(posY),
             posZ: parseFloat(posZ),
         } as DisconnectEvent;
-    }
-
-    // Hit PvP
-    match = line.match(HIT_REGEX);
-
-    if (match) {
-        const [
-            ,
-            time,
-            victimName,
-            victimId,
-            attackerName,
-            attackerId,
-            bodyPart,
-            damage,
-            ammoType,
-            weapon,
-            distance,
-        ] = match;
-
-        return {
-            type: "hit",
-            timestamp: buildTimestamp(logDate, time),
-
-            victimName,
-            victimId,
-
-            attackerName,
-            attackerId,
-
-            bodyPart,
-            damage: parseFloat(damage),
-
-            ammoType,
-            weapon,
-
-            distance: parseFloat(distance),
-        } as HitEvent;
     }
 
     return null;

@@ -1,0 +1,19 @@
+******************************************************************************
+AdminLog started on 2026-05-27 at 21:29:41
+21:30:41 | Player "Thomasso-xx" (id=kyKQyy06Tz-RBTfvT5xB7Oy1C1niYW45BvGbc6IQpZs= pos=<4117.0, 10504.5, 238.2>) is connected
+21:30:41 | Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4221.4, 10435.2, 238.2>) is connected
+21:30:44 | Player "damzy91610" (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4189.0, 10449.7, 250.9>) is connected
+21:30:52 | Player "XRaptor-SushiX" (DEAD) (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4221.1, 10434.6, 238.1>) died. Stats> Water: 583.083 Energy: 583.083 Bleed sources: 0
+21:30:59 | Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4141.0, 10448.5, 239.1>) is connected
+21:31:16 | Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4157.7, 10435.9, 246.9>)[HP: 52.4151] hit by Player "damzy91610" (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4167.0, 10444.5, 250.8>) into Torso(16) for 47.5849 damage (Bullet_556x45) with KA-101 from 13.2187 meters
+21:31:17 | Player "damzy91610" (DEAD) (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4167.4, 10444.4, 250.8>)[HP: 0] hit by Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4157.7, 10436.4, 246.9>) into Head(0) for 23.8173 damage (Bullet_556x45) with KA-101 from 13.1625 meters
+21:31:17 | Player "damzy91610" (DEAD) (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4167.4, 10444.4, 250.8>) killed by Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4157.7, 10436.4, 246.9>) with KA-101 from 13.1625 meters
+21:31:25 | Player "damzy91610" (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4107.0, 10504.5, 238.2>) is connected
+21:31:39 | Player "XRaptor-SushiX" (DEAD) (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4176.5, 10450.6, 250.8>)[HP: 0] hit by Player "XEYON_RaTaL7110" (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4169.3, 10449.6, 250.8>) into LeftArm(22) for 96.0269 damage (Bullet_556x45) with KA-101 from 7.25129 meters
+21:31:39 | Player "XRaptor-SushiX" (DEAD) (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4176.5, 10450.6, 250.8>) killed by Player "XEYON_RaTaL7110" (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4169.3, 10449.6, 250.8>) with KA-101 from 7.25129 meters
+21:34:25 | Player "damzy91610" (id=p7Z6sSfoxS_YzjUerurb9DMX_DxQIgdvTJ5Re1-p5MQ= pos=<4170.3, 10435.2, 246.9>) has been disconnected
+21:36:59 | Player "XRaptor-SushiX" (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4204.9, 10439.1, 238.1>)[HP: 98.1937] hit by Infected into RightLeg(3) for 7.225 damage (MeleeSoldierInfected)
+21:39:31 | Player "XEYON_RaTaL7110" (DEAD) (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4152.6, 10437.4, 238.3>)[HP: 0] hit by Player "canaforever666" (id=RYqNcPsTueS8s65qC07U8YXxMqewMfrnDBmKCHaTXHQ= pos=<4157.2, 10432.2, 238.9>) into Head(0) for 23.9951 damage (Bullet_556x45) with KA-101 from 6.93253 meters
+21:39:31 | Player "XEYON_RaTaL7110" (DEAD) (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4152.6, 10437.4, 238.3>) killed by Player "canaforever666" (id=RYqNcPsTueS8s65qC07U8YXxMqewMfrnDBmKCHaTXHQ= pos=<4157.2, 10432.2, 238.9>) with KA-101 from 6.93253 meters
+21:41:46 | Player "XRaptor-SushiX" (DEAD) (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4154.4, 10430.5, 243.5>)[HP: 0] hit by Player "XEYON_RaTaL7110" (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4159.7, 10429.6, 246.9>) into Head(0) for 8.75 damage (Bullet_12GaugePellets) with R12 from 6.28298 meters
+21:41:46 | Player "XRaptor-SushiX" (DEAD) (id=tEB3zF2BCm4JOg3oEx0vgt_EoODXivRoQiKVyy2n7cg= pos=<4154.4, 10430.5, 243.5>) killed by Player "XEYON_RaTaL7110" (id=QeN_czyYz3xezRBDk26GqQbuvDpGzIGpOTNMSDXxwo0= pos=<4159.7, 10429.6, 246.9>) with R12 from 6.28298 meters

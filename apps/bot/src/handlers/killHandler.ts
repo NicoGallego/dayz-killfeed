@@ -1,19 +1,19 @@
-import { prisma } from '@killfeed/db'
-import { KillEvent } from '@killfeed/parser'
+import {prisma} from '@killfeed/db'
+import {KillEvent} from '@killfeed/parser'
 
 export async function handleKill(event: KillEvent): Promise<void> {
     console.log(`[KILL] ${event.killerName} a tué ${event.victimName} avec ${event.weapon} à ${event.distance}m`)
 
     const [killer, victim] = await Promise.all([
         prisma.player.upsert({
-            where: { nitradoId: event.killerId },
-            create: { nitradoId: event.killerId, name: event.killerName },
-            update: { name: event.killerName },
+            where: {nitradoId: event.killerId},
+            create: {nitradoId: event.killerId, name: event.killerName},
+            update: {name: event.killerName},
         }),
         prisma.player.upsert({
-            where: { nitradoId: event.victimId },
-            create: { nitradoId: event.victimId, name: event.victimName },
-            update: { name: event.victimName },
+            where: {nitradoId: event.victimId},
+            create: {nitradoId: event.victimId, name: event.victimName},
+            update: {name: event.victimName},
         }),
     ])
 
@@ -24,7 +24,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
     const newLongestKill = Math.max(killer.longestKillDistance, event.distance)
 
     await prisma.player.update({
-        where: { id: killer.id },
+        where: {id: killer.id},
         data: {
             killsPvp: newKills,
             kdRatio: newKdRatio,
@@ -36,7 +36,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
 
     const newVictimDeaths = victim.deathsPvp + 1
     await prisma.player.update({
-        where: { id: victim.id },
+        where: {id: victim.id},
         data: {
             deathsPvp: newVictimDeaths,
             kdRatio: victim.killsPvp / Math.max(newVictimDeaths, 1),
@@ -46,7 +46,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
 
     await prisma.killEvent.create({
         data: {
-            timestamp: new Date(),
+            timestamp: event.timestamp,
             killerId: killer.id,
             victimId: victim.id,
             weapon: event.weapon,
@@ -58,6 +58,8 @@ export async function handleKill(event: KillEvent): Promise<void> {
             killerPosY: event.killerPosY,
             killerPosZ: event.killerPosZ,
             killerStreakAtKill: newStreak,
+            fatalHitZone: event.fatalHitZone,
+            ammoType: event.ammoType,
         },
     })
 }
