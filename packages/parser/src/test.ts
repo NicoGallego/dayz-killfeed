@@ -14,7 +14,7 @@ const lines = [
 ]
 
 for (const line of lines) {
-    const result = parseLogLine(line)
+    const result = parseLogLine(line, '2026-05-16')
     console.log('---')
     console.log('INPUT :', line.substring(0, 60) + '...')
     console.log('OUTPUT:', result ? JSON.stringify(result, null, 2) : 'null (ligne ignorée)')

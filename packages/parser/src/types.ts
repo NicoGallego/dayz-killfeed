@@ -1,6 +1,6 @@
 export interface BaseEvent {
     type: LogEventType
-    time: string
+    timestamp: Date
 }
 
 export interface KillEvent extends BaseEvent {
@@ -28,15 +28,6 @@ export interface PveDeathEvent extends BaseEvent {
     posZ: number
     bleedSources: number
     killedBy?: string  // uniquement pour les explosions
-}
-
-export interface SuicideEvent extends BaseEvent {
-    type: 'suicide'
-    playerName: string
-    playerId: string
-    posX: number
-    posY: number
-    posZ: number
 }
 
 export interface ConnectEvent extends BaseEvent {
@@ -72,7 +63,6 @@ export interface HitEvent extends BaseEvent {
 
 export type LogEventType =
     | 'kill'
-    | 'suicide'
     | 'connect'
     | 'disconnect'
     | 'hit'
@@ -80,7 +70,6 @@ export type LogEventType =
 
 export type LogEvent =
     | KillEvent
-    | SuicideEvent
     | ConnectEvent
     | DisconnectEvent
     | HitEvent

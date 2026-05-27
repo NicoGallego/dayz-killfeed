@@ -1,4 +1,5 @@
 import axios from 'axios'
+import dayjs from 'dayjs'
 import { config } from './config'
 
 const NITRADO_API = 'https://api.nitrado.net'
@@ -15,7 +16,7 @@ async function getServiceId(): Promise<number> {
     return dayzService.id
 }
 
-export async function fetchLogLines(): Promise<string[]> {
+export async function fetchLogLines(): Promise<{ lines: string[], fileName: string, logDate: string }> {
     const serviceId = await getServiceId()
 
     const gsResponse = await axios.get(
@@ -31,7 +32,9 @@ export async function fetchLogLines(): Promise<string[]> {
     const latestAdm = logFiles.find((f) => f.endsWith('.ADM'))
     if (!latestAdm) throw new Error('Aucun fichier ADM trouvé')
 
-    const fileName = latestAdm.split('/').pop()
+    const fileName = latestAdm.split('/').pop()!
+    const dateMatch = fileName.match(/(\d{4}-\d{2}-\d{2})/)
+    const logDate = dateMatch ? dateMatch[1] : dayjs().format('YYYY-MM-DD')
     const filePath = `${basePath}config/${fileName}`
 
     const tokenResponse = await axios.get(
@@ -51,7 +54,9 @@ export async function fetchLogLines(): Promise<string[]> {
         .replace(/,\s*\n\s*/g, ', ')
         .replace(/\]\s*\n\s*/g, '] ')
 
-    return cleaned
-        .split('\n')
-        .filter((line: string) => line.trim() !== '')
+    return {
+        lines: cleaned.split('\n').filter((line: string) => line.trim() !== ''),
+        fileName,
+        logDate,
+    }
 }

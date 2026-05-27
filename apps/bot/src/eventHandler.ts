@@ -1,22 +1,22 @@
-import { LogEvent } from '@killfeed/parser'
-import { handleKill } from './handlers/killHandler'
+import {LogEvent} from '@killfeed/parser'
+import {handleKill} from './handlers/killHandler'
+import {handleConnect} from './handlers/connectHandler'
+import {handleDisconnect} from './handlers/disconnectHandler'
+import {handlePveDeath} from './handlers/pveDeathHandler'
 
 export async function handleEvent(event: LogEvent): Promise<void> {
     switch (event.type) {
         case 'kill':
             await handleKill(event)
             break
-        case 'suicide':
-            // TODO
-            break
         case 'connect':
-            // TODO
+            await handleConnect(event)
             break
         case 'disconnect':
-            // TODO
+            await handleDisconnect(event)
             break
         case 'pve_death':
-            // TODO
+            await handlePveDeath(event)
             break
         case 'hit':
             break

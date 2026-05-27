@@ -1,23 +1,16 @@
-import {
-    LogEvent,
-    KillEvent,
-    SuicideEvent,
-    ConnectEvent,
-    DisconnectEvent,
-    HitEvent,
-    PveDeathEvent,
-} from './types'
+import {buildTimestamp} from "./dateUtils";
+import {LogEvent, KillEvent, ConnectEvent, DisconnectEvent, HitEvent, PveDeathEvent} from './types'
+
 
 const CONNECTED_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) is connected$/
 const DISCONNECT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) has been disconnected$/
 const KILL_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) killed by Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) with (.+?) from ([\d.]+) meters$/
 const PVE_KILL_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) killed by (.+)$/
-const SUICIDE_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) committed suicide$/
 const BLED_OUT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) bled out$/
 const DIED_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(DEAD\) \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) died\. Stats> Water: [\d.]+ Energy: [\d.]+ Bleed sources: (\d+)$/
 const HIT_REGEX = /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters$/
 
-export function parseLogLine(line: string): LogEvent | null {
+export function parseLogLine(line: string, logDate: string): LogEvent | null {
     let match: RegExpMatchArray | null
 
     // PvP kill — before PVE_KILL_REGEX
@@ -26,7 +19,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const [, time, victimName, victimId, victimPosX, victimPosY, victimPosZ, killerName, killerId, killerPosX, killerPosY, killerPosZ, weapon, distance] = match
         return {
             type: 'kill',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             victimName,
             victimId,
             victimPosX: parseFloat(victimPosX),
@@ -49,7 +42,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const isExplosion = !killedBy.startsWith('Zmb') && !killedBy.startsWith('Animal')
         return {
             type: 'pve_death',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             playerName,
             playerId,
             posX: parseFloat(posX),
@@ -60,28 +53,13 @@ export function parseLogLine(line: string): LogEvent | null {
         } as PveDeathEvent
     }
 
-    // Suicide
-    match = line.match(SUICIDE_REGEX)
-    if (match) {
-        const [, time, playerName, playerId, posX, posY, posZ] = match
-        return {
-            type: 'suicide',
-            time,
-            playerName,
-            playerId,
-            posX: parseFloat(posX),
-            posY: parseFloat(posY),
-            posZ: parseFloat(posZ),
-        } as SuicideEvent
-    }
-
     // Bled out
     match = line.match(BLED_OUT_REGEX)
     if (match) {
         const [, time, playerName, playerId, posX, posY, posZ] = match
         return {
             type: 'pve_death',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             playerName,
             playerId,
             posX: parseFloat(posX),
@@ -97,7 +75,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const [, time, playerName, playerId, posX, posY, posZ, bleedSources] = match
         return {
             type: 'pve_death',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             playerName,
             playerId,
             posX: parseFloat(posX),
@@ -113,7 +91,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const [, time, playerName, playerId, posX, posY, posZ] = match
         return {
             type: 'connect',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             playerName,
             playerId,
             posX: parseFloat(posX),
@@ -128,7 +106,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const [, time, playerName, playerId, posX, posY, posZ] = match
         return {
             type: 'disconnect',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             playerName,
             playerId,
             posX: parseFloat(posX),
@@ -143,7 +121,7 @@ export function parseLogLine(line: string): LogEvent | null {
         const [, time, victimName, victimId, attackerName, attackerId, bodyPart, damage, ammoType, weapon, distance] = match
         return {
             type: 'hit',
-            time,
+            timestamp: buildTimestamp(logDate, time),
             victimName,
             victimId,
             attackerName,

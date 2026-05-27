@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+model Config {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model Player {
   id        String   @id @default(cuid())
   nitradoId String   @unique

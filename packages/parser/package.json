@@ -8,8 +8,11 @@
     "dev": "ts-node src/test.ts"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.0"
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.21"
   }
 }
