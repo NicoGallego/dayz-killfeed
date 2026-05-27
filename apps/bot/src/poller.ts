@@ -1,6 +1,6 @@
-import cron from 'node-cron'
-import { fetchLogLines } from './nitrado'
-import { parseLogLine, LogEvent } from '@killfeed/parser'
+import * as cron from 'node-cron'
+import {fetchLogLines} from './nitrado'
+import {parseLogLine, LogEvent} from '@killfeed/parser'
 
 let lastLineCount = 0
 
@@ -22,5 +22,8 @@ async function poll(onEvent: (event: LogEvent) => void): Promise<void> {
 export function startPoller(onEvent: (event: LogEvent) => void): void {
     console.log('[Poller] Démarrage...')
     poll(onEvent)
-    cron.schedule('*/2 * * * *', () => poll(onEvent))
+    cron.schedule('* * * * *', () => {
+        console.log('[Poller] Cron déclenché')
+        poll(onEvent)
+    })
 }
