@@ -1,12 +1,12 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { config } from './config'
+import {config} from './config'
 
 const NITRADO_API = 'https://api.nitrado.net'
 
 async function getServiceId(): Promise<number> {
     const response = await axios.get(`${NITRADO_API}/services`, {
-        headers: { Authorization: `Bearer ${config.nitrado.token}` },
+        headers: {Authorization: `Bearer ${config.nitrado.token}`},
     })
     const services = response.data.data.services
     const dayzService = services.find((s: any) =>
@@ -22,7 +22,7 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     const gsResponse = await axios.get(
         `${NITRADO_API}/services/${serviceId}/gameservers`,
         {
-            headers: { Authorization: `Bearer ${config.nitrado.token}` },
+            headers: {Authorization: `Bearer ${config.nitrado.token}`},
         }
     )
 
@@ -40,14 +40,14 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     const tokenResponse = await axios.get(
         `${NITRADO_API}/services/${serviceId}/gameservers/file_server/download`,
         {
-            params: { file: filePath },
-            headers: { Authorization: `Bearer ${config.nitrado.token}` },
+            params: {file: filePath},
+            headers: {Authorization: `Bearer ${config.nitrado.token}`},
         }
     )
 
-    const { url, token } = tokenResponse.data.data.token
+    const {url, token} = tokenResponse.data.data.token
 
-    const fileResponse = await axios.get(url, { params: { token } })
+    const fileResponse = await axios.get(url, {params: {token}})
 
     const raw: string = fileResponse.data
     const cleaned = raw
