@@ -1,5 +1,5 @@
-import { EmbedBuilder } from 'discord.js'
-import { KillEvent } from '@killfeed/parser'
+import {EmbedBuilder} from 'discord.js'
+import {KillEvent} from '@killfeed/parser'
 
 interface KillEmbedOptions {
     event: KillEvent
@@ -9,6 +9,7 @@ interface KillEmbedOptions {
     newVictimDeaths: number
     victimKills: number
     timeAliveText: string
+    map: string
 }
 
 export function buildKillEmbed({
@@ -19,11 +20,12 @@ export function buildKillEmbed({
                                    newVictimDeaths,
                                    victimKills,
                                    timeAliveText,
+                                   map
                                }: KillEmbedOptions): EmbedBuilder {
     const streakText = newStreak > 1 ? `${newStreak}x Killstreak` : '1x Killstreak'
 
-    const killerIzurvive = `[📍 Position](https://izurvive.com/livonia/#location=${event.killerPosX.toFixed(1)};${event.killerPosY.toFixed(1)})`
-    const victimIzurvive = `[📍 Position](https://izurvive.com/livonia/#location=${event.victimPosX.toFixed(1)};${event.victimPosY.toFixed(1)})`
+    const killerIzurvive = `[📍 Position](https://izurvive.com/${map}/#location=${event.killerPosX.toFixed(1)};${event.killerPosY.toFixed(1)})`
+    const victimIzurvive = `[📍 Position](https://izurvive.com/${map}/#location=${event.victimPosX.toFixed(1)};${event.victimPosY.toFixed(1)})`
 
     return new EmbedBuilder()
         .setColor(0x2ECC71)
@@ -56,5 +58,5 @@ export function buildKillEmbed({
                 ].join('\n'),
             },
         )
-        .setFooter({ text: `BZone Killfeed • ${event.timestamp.toLocaleTimeString('fr-FR')}` })
+        .setFooter({text: `BZone Killfeed • ${event.timestamp.toLocaleTimeString('fr-FR')}`})
 }

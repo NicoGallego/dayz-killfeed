@@ -18,7 +18,8 @@ export async function handleKill(event: KillEvent): Promise<void> {
             update: { name: event.victimName },
         }),
     ])
-
+    const mapConfig = await prisma.config.findUnique({ where: { key: 'map' } })
+    const map = mapConfig?.value ?? 'livonia'
     const newStreak = killer.currentKillstreak + 1
     const newBestStreak = Math.max(killer.bestKillstreak, newStreak)
     const newKills = killer.killsPvp + 1
@@ -97,6 +98,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
         newVictimDeaths,
         victimKills: victim.killsPvp,
         timeAliveText,
+        map
     })
 
     await sendKillfeedEmbed(embed)

@@ -2,6 +2,12 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import {config} from './config'
 
+const MAP_IZURVIVE: Record<string, string> = {
+    'dayzOffline.enoch': 'livonia',
+    'dayzOffline.chernarusplus': 'chernarusplus',
+    'dayzOffline.sakhal': 'sakhal',
+}
+
 const NITRADO_API = 'https://api.nitrado.net'
 
 async function getServiceId(): Promise<number> {
@@ -16,7 +22,7 @@ async function getServiceId(): Promise<number> {
     return dayzService.id
 }
 
-export async function fetchLogLines(): Promise<{ lines: string[], fileName: string, logDate: string }> {
+export async function fetchLogLines(): Promise<{ lines: string[], fileName: string, logDate: string, map: string }> {
     const serviceId = await getServiceId()
 
     const gsResponse = await axios.get(
@@ -27,6 +33,8 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     )
 
     const gameServer = gsResponse.data.data.gameserver
+    const mapKey = gameServer.query.map
+    const map = MAP_IZURVIVE[mapKey] ?? mapKey
     const basePath: string = gameServer.game_specific.path
     const logFiles: string[] = gameServer.game_specific.log_files
     const latestAdm = logFiles.find((f) => f.endsWith('.ADM'))
@@ -53,10 +61,11 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     const cleaned = raw
         .replace(/,\s*\n\s*/g, ', ')
         .replace(/\]\s*\n\s*/g, '] ')
-
+    
     return {
         lines: cleaned.split('\n').filter((line: string) => line.trim() !== ''),
         fileName,
         logDate,
+        map
     }
 }

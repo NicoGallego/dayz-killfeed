@@ -4,6 +4,7 @@ import { parseLogLine, LogEvent } from '@killfeed/parser'
 import { prisma } from '@killfeed/db'
 
 const LAST_PARSED_LINE_KEY = 'lastParsedLine'
+const MAP_KEY = 'map'
 
 async function getLastParsedLine(): Promise<string | null> {
     const config = await prisma.config.findUnique({
@@ -20,9 +21,19 @@ async function setLastParsedLine(line: string): Promise<void> {
     })
 }
 
+async function setMap(map: string): Promise<void> {
+    await prisma.config.upsert({
+        where: { key: MAP_KEY },
+        create: { key: MAP_KEY, value: map },
+        update: { value: map },
+    })
+}
+
 async function poll(onEvent: (event: LogEvent) => void): Promise<void> {
     try {
-        const { lines, logDate } = await fetchLogLines()
+        const { lines, logDate, map } = await fetchLogLines()
+
+        await setMap(map)
 
         const lastParsedLine = await getLastParsedLine()
         const lastIndex = lastParsedLine
