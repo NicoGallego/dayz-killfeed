@@ -40,7 +40,6 @@ export function parseLogLine(
     match = line.match(HIT_REGEX);
     if (match) {
         const [, , , victimId, , , bodyPart, , ammoType] = match;
-        console.log('HIT TRACKED:', victimId.substring(0, 8), bodyPart, ammoType)
         lastHitData.set(victimId, { bodyPart, ammoType });
         return null;
     }
@@ -67,7 +66,6 @@ export function parseLogLine(
 
         const hitData = lastHitData.get(victimId) ?? null;
         lastHitData.delete(victimId);
-        console.log('KILL hitData:', hitData)
         return {
             type: "kill",
             timestamp: buildTimestamp(logDate, time),

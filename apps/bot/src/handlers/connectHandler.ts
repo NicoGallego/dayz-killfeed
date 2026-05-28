@@ -7,8 +7,8 @@ export async function handleConnect(event: ConnectEvent): Promise<void> {
 
     const player = await prisma.player.upsert({
         where: {nitradoId: event.playerId},
-        create: {nitradoId: event.playerId, name: event.playerName},
-        update: {},
+        create: {nitradoId: event.playerId, name: event.playerName, isOnline: true},
+        update: {isOnline: true},
     })
 
 

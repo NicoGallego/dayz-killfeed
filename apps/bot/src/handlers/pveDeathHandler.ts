@@ -14,6 +14,7 @@ export async function handlePveDeath(event: PveDeathEvent): Promise<void> {
         where: { id: player.id },
         data: {
             deathsPve: player.deathsPve + 1,
+            lastDeathAt: event.timestamp,
         },
     })
 }

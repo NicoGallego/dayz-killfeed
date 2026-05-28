@@ -40,6 +40,7 @@ export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
         where: { id: player.id },
         data: {
             totalSecondsOnline: player.totalSecondsOnline + durationSeconds,
+            isOnline: false,
         },
     })
 }

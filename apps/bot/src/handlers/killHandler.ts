@@ -1,7 +1,7 @@
 import { prisma } from '@killfeed/db'
 import { KillEvent } from '@killfeed/parser'
-import { EmbedBuilder } from 'discord.js'
 import { sendKillfeedEmbed } from '../discord'
+import { buildKillEmbed } from '../embeds/killEmbed'
 
 export async function handleKill(event: KillEvent): Promise<void> {
     console.log(`[KILL] ${event.killerName} a tué ${event.victimName} avec ${event.weapon} à ${event.distance}m`)
@@ -37,12 +37,35 @@ export async function handleKill(event: KillEvent): Promise<void> {
     })
 
     const newVictimDeaths = victim.deathsPvp + 1
+
+    let timeAliveSeconds = 0
+    if (victim.isOnline && victim.lastDeathAt) {
+        timeAliveSeconds = Math.floor(
+            (event.timestamp.getTime() - victim.lastDeathAt.getTime()) / 1000
+        )
+    } else if (victim.isOnline && !victim.lastDeathAt) {
+        const session = await prisma.session.findFirst({
+            where: { playerId: victim.id, disconnectedAt: null },
+            orderBy: { connectedAt: 'desc' },
+        })
+        if (session) {
+            timeAliveSeconds = Math.floor(
+                (event.timestamp.getTime() - session.connectedAt.getTime()) / 1000
+            )
+        }
+    }
+
+    const timeAliveText = timeAliveSeconds > 0
+        ? `${Math.floor(timeAliveSeconds / 3600)}h ${Math.floor((timeAliveSeconds % 3600) / 60)}m ${timeAliveSeconds % 60}s`
+        : 'Unknown'
+
     await prisma.player.update({
         where: { id: victim.id },
         data: {
             deathsPvp: newVictimDeaths,
             kdRatio: victim.killsPvp / Math.max(newVictimDeaths, 1),
             currentKillstreak: 0,
+            lastDeathAt: event.timestamp,
         },
     })
 
@@ -62,46 +85,19 @@ export async function handleKill(event: KillEvent): Promise<void> {
             killerStreakAtKill: newStreak,
             fatalHitZone: event.fatalHitZone,
             ammoType: event.ammoType,
+            timeAliveSeconds: timeAliveSeconds > 0 ? timeAliveSeconds : null,
         },
     })
 
-    const streakText = newStreak > 1 ? `${newStreak}x Killstreak` : '1x Killstreak'
-
-    const killerIzurvive = `[📍 Position](https://izurvive.com/livonia/#location=${event.killerPosX.toFixed(1)};${event.killerPosZ.toFixed(1)})`
-    const victimIzurvive = `[📍 Position](https://izurvive.com/livonia/#location=${event.victimPosX.toFixed(1)};${event.victimPosZ.toFixed(1)})`
-
-    const embed = new EmbedBuilder()
-        .setColor(0x2ECC71)
-        .setTitle(`☠️ · Player Kill · ${event.timestamp.toLocaleTimeString('fr-FR')}`)
-        .setDescription(`**${event.victimName}** was killed by **${event.killerName}**.`)
-        .addFields(
-            {
-                name: '🗂️ · Details',
-                value: [
-                    `• Weapon: **${event.weapon}**`,
-                    `• Ammo: **${event.ammoType ?? 'Unknown'}**`,
-                    `• Distance: **${event.distance.toFixed(2)}m**`,
-                    `• Body Part: **${event.fatalHitZone ?? 'Unknown'}**`,
-                ].join('\n'),
-            },
-            {
-                name: `📋 · ${event.killerName}`,
-                value: [
-                    `**${newKdRatio.toFixed(2)} K/D** | **${newKills} Kills**`,
-                    `**${streakText}**`,
-                    killerIzurvive,
-                ].join('\n'),
-            },
-            {
-                name: `📋 · ${event.victimName}`,
-                value: [
-                    `**${(victim.killsPvp / Math.max(newVictimDeaths, 1)).toFixed(2)} K/D** | **${newVictimDeaths} Deaths**`,
-                    `**Streak reset**`,
-                    victimIzurvive,
-                ].join('\n'),
-            },
-        )
-        .setFooter({ text: `BZone Killfeed • ${event.timestamp.toLocaleTimeString('fr-FR')}` })
+    const embed = buildKillEmbed({
+        event,
+        newKills,
+        newKdRatio,
+        newStreak,
+        newVictimDeaths,
+        victimKills: victim.killsPvp,
+        timeAliveText,
+    })
 
     await sendKillfeedEmbed(embed)
 }
