@@ -61,7 +61,7 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     const cleaned = raw
         .replace(/,\s*\n\s*/g, ', ')
         .replace(/\]\s*\n\s*/g, '] ')
-    
+
     return {
         lines: cleaned.split('\n').filter((line: string) => line.trim() !== ''),
         fileName,
