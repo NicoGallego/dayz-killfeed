@@ -1,3 +1,5 @@
 export * from './types'
 export * from './parser'
 export * from './maps/index'
+export { HitCorrelator } from './hitCorrelator'
+export type { HitData } from './hitCorrelator'

@@ -6,6 +6,7 @@ import {
     DisconnectEvent,
     PveDeathEvent,
 } from "./types";
+import { HitCorrelator } from "./hitCorrelator";
 
 const CONNECTED_REGEX =
     /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" \(id=([^\s]+) pos=<([^,]+), ([^,]+), ([^>]+)>\) is connected$/;
@@ -28,11 +29,10 @@ const DIED_REGEX =
 const HIT_REGEX =
     /^(\d{2}:\d{2}:\d{2}) \| Player "(.+?)" (?:\(DEAD\) )?\(id=([^\s]+)[^)]*\)\[HP:[^\]]+\] hit by Player "(.+?)" \(id=([^\s]+)[^)]*\) into (\w+)\(\d+\) for ([\d.]+) damage \(([^)]+)\) with (.+?) from ([\d.]+) meters/;
 
-const lastHitData = new Map<string, { bodyPart: string; ammoType: string }>()
-
 export function parseLogLine(
     line: string,
-    logDate: string
+    logDate: string,
+    correlator?: HitCorrelator,
 ): LogEvent | null {
     let match: RegExpMatchArray | null;
 
@@ -40,7 +40,7 @@ export function parseLogLine(
     match = line.match(HIT_REGEX);
     if (match) {
         const [, , , victimId, , , bodyPart, , ammoType] = match;
-        lastHitData.set(victimId, { bodyPart, ammoType });
+        correlator?.set(victimId, { bodyPart, ammoType });
         return null;
     }
 
@@ -64,8 +64,7 @@ export function parseLogLine(
             distance,
         ] = match;
 
-        const hitData = lastHitData.get(victimId) ?? null;
-        lastHitData.delete(victimId);
+        const hitData = correlator?.consume(victimId) ?? null;
         return {
             type: "kill",
             timestamp: buildTimestamp(logDate, time),

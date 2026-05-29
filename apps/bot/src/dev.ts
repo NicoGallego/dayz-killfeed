@@ -4,7 +4,7 @@ dotenv.config()
 import './discord'
 import * as fs from 'fs'
 import * as path from 'path'
-import { parseLogLine } from '@killfeed/parser'
+import { parseLogLine, HitCorrelator } from '@killfeed/parser'
 import { enqueueEvent, waitForQueueIdle } from './queue'
 
 async function main() {
@@ -18,8 +18,9 @@ async function main() {
         .split('\n')
         .filter(l => l.trim() !== '')
 
+    const correlator = new HitCorrelator()
     for (const line of lines) {
-        const event = parseLogLine(line, logDate)
+        const event = parseLogLine(line, logDate, correlator)
         if (event) enqueueEvent(event)
     }
 

@@ -1,41 +1,19 @@
 import * as cron from 'node-cron'
 import { fetchLogLines } from './nitrado'
-import { parseLogLine, LogEvent } from '@killfeed/parser'
-import { prisma } from '@killfeed/db'
+import { parseLogLine, LogEvent, HitCorrelator } from '@killfeed/parser'
+import { configRepo } from '@killfeed/db'
 
 const LAST_PARSED_LINE_KEY = 'lastParsedLine'
 const MAP_KEY = 'map'
-
-async function getLastParsedLine(): Promise<string | null> {
-    const config = await prisma.config.findUnique({
-        where: { key: LAST_PARSED_LINE_KEY },
-    })
-    return config?.value ?? null
-}
-
-async function setLastParsedLine(line: string): Promise<void> {
-    await prisma.config.upsert({
-        where: { key: LAST_PARSED_LINE_KEY },
-        create: { key: LAST_PARSED_LINE_KEY, value: line },
-        update: { value: line },
-    })
-}
-
-async function setMap(map: string): Promise<void> {
-    await prisma.config.upsert({
-        where: { key: MAP_KEY },
-        create: { key: MAP_KEY, value: map },
-        update: { value: map },
-    })
-}
+const hitCorrelator = new HitCorrelator()
 
 async function poll(onEvent: (event: LogEvent) => void): Promise<void> {
     try {
         const { lines, logDate, map } = await fetchLogLines()
 
-        await setMap(map)
+        await configRepo.setConfig(MAP_KEY, map)
 
-        const lastParsedLine = await getLastParsedLine()
+        const lastParsedLine = await configRepo.getConfig(LAST_PARSED_LINE_KEY)
         const lastIndex = lastParsedLine
             ? lines.findLastIndex(l => l === lastParsedLine)
             : -1
@@ -43,11 +21,11 @@ async function poll(onEvent: (event: LogEvent) => void): Promise<void> {
         const newLines = lines.slice(lastIndex + 1)
 
         if (newLines.length > 0) {
-            await setLastParsedLine(newLines[newLines.length - 1])
+            await configRepo.setConfig(LAST_PARSED_LINE_KEY, newLines[newLines.length - 1])
         }
 
         for (const line of newLines) {
-            const event = parseLogLine(line, logDate)
+            const event = parseLogLine(line, logDate, hitCorrelator)
             if (event) onEvent(event)
         }
     } catch (err) {

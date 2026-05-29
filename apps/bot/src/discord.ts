@@ -12,13 +12,6 @@ client.once('clientReady', () => {
     ready = true
 })
 
-/*client.once('clientReady', async () => {
-    console.log(`[Discord] Connecté en tant que ${client.user?.tag}`)
-    const channel = await client.channels.fetch(config.discord.killfeedChannelId)
-    if (channel instanceof TextChannel) {
-        await channel.send('🤖 Bot connecté !')
-    }
-})*/
 client.login(config.discord.token)
 
 export async function sendKillfeedEmbed(embed: EmbedBuilder): Promise<void> {
