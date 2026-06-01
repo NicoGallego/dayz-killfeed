@@ -14,6 +14,11 @@ export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
         (event.timestamp.getTime() - openSession.connectedAt.getTime()) / 1000
     )
 
+    if (durationSeconds < 0) {
+        await sessionRepo.closeSession(openSession.id, event.timestamp, 0)
+        return
+    }
+
     await sessionRepo.closeSession(openSession.id, event.timestamp, durationSeconds)
     await playerRepo.updateDisconnect(player.id, durationSeconds)
 }

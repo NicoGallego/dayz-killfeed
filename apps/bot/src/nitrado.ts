@@ -33,8 +33,8 @@ export async function fetchLogLines(): Promise<{ lines: string[], fileName: stri
     )
 
     const gameServer = gsResponse.data.data.gameserver
-    const mapKey = gameServer.query.map
-    const map = MAP_IZURVIVE[mapKey] ?? mapKey
+    const mapKey = gameServer.query?.map
+    const map = mapKey ? (MAP_IZURVIVE[mapKey] ?? mapKey) : 'livonia'
     const basePath: string = gameServer.game_specific.path
     const logFiles: string[] = gameServer.game_specific.log_files
     const latestAdm = logFiles.find((f) => f.endsWith('.ADM'))
