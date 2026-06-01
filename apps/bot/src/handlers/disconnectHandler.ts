@@ -21,4 +21,13 @@ export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
 
     await sessionRepo.closeSession(openSession.id, event.timestamp, durationSeconds)
     await playerRepo.updateDisconnect(player.id, durationSeconds)
+
+    if (player.lastSpawnAt) {
+        const lifeSeconds = Math.floor(
+            (event.timestamp.getTime() - player.lastSpawnAt.getTime()) / 1000
+        )
+        if (lifeSeconds > 0) {
+            await playerRepo.accumulateLifeSeconds(player.id, lifeSeconds)
+        }
+    }
 }

@@ -7,7 +7,13 @@ export async function handleConnect(event: ConnectEvent): Promise<void> {
     const player = await playerRepo.upsertPlayerConnect(event.playerId, event.playerName)
 
     const openSession = await sessionRepo.findOpenSession(player.id)
-    if (openSession) return
 
+    if (openSession) {
+        // Respawn — nouvelle vie, reset timer
+        await playerRepo.resetLifeStats(player.id, event.timestamp)
+        return
+    }
+
+    // Vraie connexion — nouvelle session, lastSpawnAt inchangé
     await sessionRepo.createSession(player.id, event.timestamp)
 }

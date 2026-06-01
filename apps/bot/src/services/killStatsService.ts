@@ -1,4 +1,4 @@
-import type { Player, Session } from '@killfeed/db'
+import type {Player, Session} from '@killfeed/db'
 
 export interface KillerStatsResult {
     killsPvp: number
@@ -45,19 +45,19 @@ export function computeVictimStats(victim: Player, killedAt: Date): VictimStatsR
 export function computeTimeAlive(
     victim: Player,
     killTimestamp: Date,
-    session: Session | null,
 ): TimeAliveResult {
-    let seconds = 0
+    let seconds = victim.accumulatedLifeSeconds
 
-    if (victim.isOnline && victim.lastDeathAt) {
-        seconds = Math.floor((killTimestamp.getTime() - victim.lastDeathAt.getTime()) / 1000)
-    } else if (victim.isOnline && session) {
-        seconds = Math.floor((killTimestamp.getTime() - session.connectedAt.getTime()) / 1000)
+    if (victim.lastSpawnAt) {
+        const sincSpawn = Math.floor(
+            (killTimestamp.getTime() - victim.lastSpawnAt.getTime()) / 1000
+        )
+        if (sincSpawn > 0) seconds += sincSpawn
     }
 
     const text = seconds > 0
         ? `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m ${seconds % 60}s`
         : 'Unknown'
 
-    return { seconds, text }
+    return {seconds, text}
 }

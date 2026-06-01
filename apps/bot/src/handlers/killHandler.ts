@@ -13,13 +13,9 @@ export async function handleKill(event: KillEvent): Promise<void> {
         configRepo.getConfig('map'),
     ])
 
-    const session = victim.isOnline && !victim.lastDeathAt
-        ? await sessionRepo.findLatestOpenSession(victim.id)
-        : null
-
     const killerStats = computeKillerStats(killer, event.distance)
     const victimStats = computeVictimStats(victim, event.timestamp)
-    const { seconds: timeAliveSeconds, text: timeAliveText } = computeTimeAlive(victim, event.timestamp, session)
+    const { seconds: timeAliveSeconds, text: timeAliveText } = computeTimeAlive(victim, event.timestamp)
 
     await Promise.all([
         playerRepo.updateKillerStats(killer.id, {
@@ -34,6 +30,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
             kdRatio: victimStats.kdRatio,
             lastDeathAt: victimStats.lastDeathAt,
         }),
+        playerRepo.resetLifeStats(victim.id, event.timestamp),
         killEventRepo.createKillEvent({
             timestamp: event.timestamp,
             killerId: killer.id,

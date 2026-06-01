@@ -63,3 +63,23 @@ export async function updatePveDeath(
 ): Promise<void> {
     await prisma.player.update({ where: { id }, data: { deathsPve, lastDeathAt } })
 }
+
+export async function resetLifeStats(id: string, spawnAt: Date): Promise<void> {
+    await prisma.player.update({
+        where: { id },
+        data: {
+            lastSpawnAt: spawnAt,
+            accumulatedLifeSeconds: 0,
+        },
+    })
+}
+
+export async function accumulateLifeSeconds(id: string, seconds: number): Promise<void> {
+    await prisma.player.update({
+        where: { id },
+        data: {
+            accumulatedLifeSeconds: { increment: seconds },
+            lastSpawnAt: null,
+        },
+    })
+}

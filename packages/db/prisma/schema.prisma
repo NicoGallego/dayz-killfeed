@@ -21,17 +21,19 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  killsPvp            Int       @default(0)
-  deathsPvp           Int       @default(0)
-  deathsPve           Int       @default(0)
-  deathsSuicide       Int       @default(0)
-  kdRatio             Float     @default(0)
-  currentKillstreak   Int       @default(0)
-  bestKillstreak      Int       @default(0)
-  longestKillDistance Float     @default(0)
-  totalSecondsOnline  Int       @default(0)
-  lastDeathAt         DateTime?
-  isOnline            Boolean   @default(false)
+  killsPvp               Int       @default(0)
+  deathsPvp              Int       @default(0)
+  deathsPve              Int       @default(0)
+  deathsSuicide          Int       @default(0)
+  kdRatio                Float     @default(0)
+  currentKillstreak      Int       @default(0)
+  bestKillstreak         Int       @default(0)
+  longestKillDistance    Float     @default(0)
+  totalSecondsOnline     Int       @default(0)
+  lastDeathAt            DateTime?
+  isOnline               Boolean   @default(false)
+  lastSpawnAt            DateTime?
+  accumulatedLifeSeconds Int       @default(0)
 
   killsAsKiller      KillEvent[]        @relation("Killer")
   killsAsVictim      KillEvent[]        @relation("Victim")
