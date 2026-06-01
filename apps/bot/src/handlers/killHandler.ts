@@ -18,12 +18,22 @@ export async function handleKill(event: KillEvent): Promise<void> {
         : null
 
     const killerStats = computeKillerStats(killer, event.distance)
-    const { seconds: timeAliveSeconds, text: timeAliveText } = computeTimeAlive(victim, event.timestamp, session)
     const victimStats = computeVictimStats(victim, event.timestamp)
+    const { seconds: timeAliveSeconds, text: timeAliveText } = computeTimeAlive(victim, event.timestamp, session)
 
     await Promise.all([
-        playerRepo.updateKillerStats(killer.id, killerStats),
-        playerRepo.updateVictimStats(victim.id, victimStats),
+        playerRepo.updateKillerStats(killer.id, {
+            killsPvp: killerStats.killsPvp,
+            kdRatio: killerStats.kdRatio,
+            currentKillstreak: killerStats.currentKillstreak,
+            bestKillstreak: killerStats.bestKillstreak,
+            longestKillDistance: killerStats.longestKillDistance,
+        }),
+        playerRepo.updateVictimStats(victim.id, {
+            deathsPvp: victimStats.deathsPvp,
+            kdRatio: victimStats.kdRatio,
+            lastDeathAt: victimStats.lastDeathAt,
+        }),
         killEventRepo.createKillEvent({
             timestamp: event.timestamp,
             killerId: killer.id,
@@ -45,11 +55,11 @@ export async function handleKill(event: KillEvent): Promise<void> {
 
     const embed = buildKillEmbed({
         event,
-        newKills: killerStats.killsPvp,
-        newKdRatio: killerStats.kdRatio,
-        newStreak: killerStats.currentKillstreak,
-        newVictimDeaths: victimStats.deathsPvp,
-        victimKills: victim.killsPvp,
+        killerKills: killerStats.killsPvp,
+        killerKd: killerStats.kdRatio,
+        streakText: killerStats.streakText,
+        victimDeaths: victimStats.deathsPvp,
+        victimKd: victimStats.kdRatio,
         timeAliveText,
         map: map ?? 'livonia',
     })

@@ -19,5 +19,5 @@ export function getNearestLocation(map: string, x: number, z: number): string {
         }
     }
 
-    return `Near ${nearest.name}`
+    return `Around ${nearest.name}`
 }

@@ -1,11 +1,26 @@
-import type { Player, Session, KillerStats, VictimStats } from '@killfeed/db'
+import type { Player, Session } from '@killfeed/db'
+
+export interface KillerStatsResult {
+    killsPvp: number
+    kdRatio: number
+    currentKillstreak: number
+    bestKillstreak: number
+    longestKillDistance: number
+    streakText: string
+}
+
+export interface VictimStatsResult {
+    deathsPvp: number
+    kdRatio: number
+    lastDeathAt: Date
+}
 
 export interface TimeAliveResult {
     seconds: number
     text: string
 }
 
-export function computeKillerStats(killer: Player, killDistance: number): KillerStats {
+export function computeKillerStats(killer: Player, killDistance: number): KillerStatsResult {
     const newStreak = killer.currentKillstreak + 1
     const newKills = killer.killsPvp + 1
     return {
@@ -14,10 +29,11 @@ export function computeKillerStats(killer: Player, killDistance: number): Killer
         currentKillstreak: newStreak,
         bestKillstreak: Math.max(killer.bestKillstreak, newStreak),
         longestKillDistance: Math.max(killer.longestKillDistance, killDistance),
+        streakText: `${newStreak}x Killstreak`,
     }
 }
 
-export function computeVictimStats(victim: Player, killedAt: Date): VictimStats {
+export function computeVictimStats(victim: Player, killedAt: Date): VictimStatsResult {
     const newDeaths = victim.deathsPvp + 1
     return {
         deathsPvp: newDeaths,
