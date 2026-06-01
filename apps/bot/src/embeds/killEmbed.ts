@@ -54,24 +54,20 @@ export function buildKillEmbed({
                     `**${event.killerName}**`,
                     `**${killerKd.toFixed(2)} K/D**  |  **${killerKills} Kills**`,
                     `**${streakText}**`,
+                    '\u200B',
                 ].join('\n'),
             },
-            {
-                name: '\u200B',
-                value: '',
-            },
+
             {
                 name: `<:icon_victim2_white:1511096224814727259> | Victim`,
                 value: [
                     `**${event.victimName}**`,
                     `**${victimKd.toFixed(2)} K/D**  |  **${victimDeaths} Deaths**`,
                     `Time Alive: **${timeAliveText}**`,
+                    '\u200B',
                 ].join('\n'),
             },
-            {
-                name: '\u200B',
-                value: '',
-            },
+
             {
                 name: '<:icon_file_white:1511029397245792366> | Details',
                 value: [
@@ -79,22 +75,17 @@ export function buildKillEmbed({
                     `- Ammo: **${event.ammoType ?? 'Unknown'}**`,
                     `- Distance: **${event.distance.toFixed(2)}m**`,
                     `- Impact zone: **${event.fatalHitZone ?? 'Unknown'}**`,
+                    '\u200B',
                 ].join('\n'),
             },
-            {
-                name: '\u200B',
-                value: '',
-            },
+
             {
                 name: '<:icon_pin_white:1511090740296548392> | Location',
                 value: [
                     `[**Killer**](${killerIzurvive}) — _${killerLocation}_`,
                     `[**Victim**](${victimIzurvive}) — _${victimLocation}_`,
+                    '\u200B',
                 ].join('\n'),
-            },
-            {
-                name: '\u200B',
-                value: '',
             },
         )
         .setFooter({text: 'Monarch'})
