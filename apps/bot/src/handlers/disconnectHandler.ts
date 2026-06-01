@@ -1,5 +1,7 @@
-import { playerRepo, sessionRepo } from '@killfeed/db'
+import { playerRepo, sessionRepo, configRepo } from '@killfeed/db'
 import { DisconnectEvent } from '@killfeed/parser'
+import { sendConnectionEmbed } from '../discord'
+import { buildDisconnectEmbed } from '../embeds/disconnectEmbed'
 
 export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
     console.log(`[DISCONNECT] ${event.timestamp} – ${event.playerName}`)
@@ -19,8 +21,10 @@ export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
         return
     }
 
-    await sessionRepo.closeSession(openSession.id, event.timestamp, durationSeconds)
-    await playerRepo.updateDisconnect(player.id, durationSeconds)
+    await Promise.all([
+        sessionRepo.closeSession(openSession.id, event.timestamp, durationSeconds),
+        playerRepo.updateDisconnect(player.id, durationSeconds),
+    ])
 
     if (player.lastSpawnAt) {
         const lifeSeconds = Math.floor(
@@ -30,4 +34,15 @@ export async function handleDisconnect(event: DisconnectEvent): Promise<void> {
             await playerRepo.accumulateLifeSeconds(player.id, lifeSeconds)
         }
     }
+
+    const map = await configRepo.getConfig('map')
+
+    const embed = buildDisconnectEmbed({
+        event,
+        sessionSeconds: durationSeconds,
+        totalSecondsOnline: player.totalSecondsOnline + durationSeconds,
+        map: map ?? 'livonia',
+    })
+
+    await sendConnectionEmbed(embed)
 }

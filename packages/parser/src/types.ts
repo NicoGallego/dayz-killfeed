@@ -36,9 +36,9 @@ export interface ConnectEvent extends BaseEvent {
     type: 'connect'
     playerName: string
     playerId: string
-    posX?: number
-    posY?: number
-    posZ?: number
+    posX: number
+    posY: number
+    posZ: number
 }
 
 export interface DisconnectEvent extends BaseEvent {
