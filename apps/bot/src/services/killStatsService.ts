@@ -6,6 +6,7 @@ export interface KillerStatsResult {
     currentKillstreak: number
     bestKillstreak: number
     longestKillDistance: number
+    longestKillWeapon: string
     streakText: string
 }
 
@@ -20,15 +21,18 @@ export interface TimeAliveResult {
     text: string
 }
 
-export function computeKillerStats(killer: Player, killDistance: number): KillerStatsResult {
+export function computeKillerStats(killer: Player, killDistance: number, weapon: string): KillerStatsResult {
     const newStreak = killer.currentKillstreak + 1
     const newKills = killer.killsPvp + 1
+    const isNewRecord = killDistance > killer.longestKillDistance
+
     return {
         killsPvp: newKills,
         kdRatio: newKills / Math.max(killer.deathsPvp, 1),
         currentKillstreak: newStreak,
         bestKillstreak: Math.max(killer.bestKillstreak, newStreak),
         longestKillDistance: Math.max(killer.longestKillDistance, killDistance),
+        longestKillWeapon: isNewRecord ? weapon : (killer.longestKillWeapon ?? weapon),
         streakText: `${newStreak}x Killstreak`,
     }
 }

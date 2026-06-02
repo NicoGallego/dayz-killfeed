@@ -12,7 +12,7 @@ export function buildConnectEmbed({ event, map }: ConnectEmbedOptions): EmbedBui
 
     return new EmbedBuilder()
         .setColor(0x4ADE80)
-        .setTitle(`<:icon_sphere_white:1511091623784615957> · CONNECTED · ${event.timestamp.toLocaleTimeString('fr-FR')}`)
+        .setTitle(`<:icon_connect_white:1511171076980215958> · CONNECTED · ${event.timestamp.toLocaleTimeString('fr-FR')}`)
         .setDescription(`**${event.playerName}** connected to the game server.`)
         .addFields(
             {

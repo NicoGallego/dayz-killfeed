@@ -33,6 +33,7 @@ model Player {
   lastDeathAt            DateTime?
   isOnline               Boolean   @default(false)
   lastSpawnAt            DateTime?
+  longestKillWeapon      String?
   accumulatedLifeSeconds Int       @default(0)
 
   killsAsKiller      KillEvent[]        @relation("Killer")

@@ -7,6 +7,7 @@ export interface KillerStats {
     currentKillstreak: number
     bestKillstreak: number
     longestKillDistance: number
+    longestKillWeapon: string
 }
 
 export interface VictimStats {

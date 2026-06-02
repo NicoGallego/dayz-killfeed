@@ -28,7 +28,7 @@ export function buildDisconnectEmbed({
 
     return new EmbedBuilder()
         .setColor(0xF97316)
-        .setTitle(`<:icon_sphere_white:1511091623784615957> · DISCONNECTED · ${event.timestamp.toLocaleTimeString('fr-FR')}`)
+        .setTitle(`<:icon_disconnect_white:1511171075801616434> · DISCONNECTED · ${event.timestamp.toLocaleTimeString('fr-FR')}`)
         .setDescription(`**${event.playerName}** disconnected from the game server.`)
         .addFields(
             {

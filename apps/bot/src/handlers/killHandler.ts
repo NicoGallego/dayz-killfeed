@@ -13,7 +13,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
         configRepo.getConfig('map'),
     ])
 
-    const killerStats = computeKillerStats(killer, event.distance)
+    const killerStats = computeKillerStats(killer, event.distance, event.weapon)
     const victimStats = computeVictimStats(victim, event.timestamp)
     const { seconds: timeAliveSeconds, text: timeAliveText } = computeTimeAlive(victim, event.timestamp)
 
@@ -24,6 +24,7 @@ export async function handleKill(event: KillEvent): Promise<void> {
             currentKillstreak: killerStats.currentKillstreak,
             bestKillstreak: killerStats.bestKillstreak,
             longestKillDistance: killerStats.longestKillDistance,
+            longestKillWeapon: killerStats.longestKillWeapon,
         }),
         playerRepo.updateVictimStats(victim.id, {
             deathsPvp: victimStats.deathsPvp,

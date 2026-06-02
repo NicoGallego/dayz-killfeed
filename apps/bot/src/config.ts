@@ -4,6 +4,7 @@ export const config = {
         guildId: process.env.DISCORD_GUILD_ID!,
         killfeedChannelId: process.env.KILLFEED_CHANNEL_ID!,
         connectionChannelId: process.env.CONNECTION_CHANNEL_ID!,
+        leaderboardChannelId: process.env.LEADERBOARD_CHANNEL_ID!
     },
     nitrado: {
         token: process.env.NITRADO_TOKEN!,

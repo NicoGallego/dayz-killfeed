@@ -27,3 +27,10 @@ export async function sendConnectionEmbed(embed: EmbedBuilder): Promise<void> {
     if (!channel || !(channel instanceof TextChannel)) return
     await channel.send({ embeds: [embed] })
 }
+
+export async function sendLeaderboardEmbed(embed: EmbedBuilder): Promise<void> {
+    if (!ready) return
+    const channel = await client.channels.fetch(config.discord.leaderboardChannelId)
+    if (!channel || !(channel instanceof TextChannel)) return
+    await channel.send({ embeds: [embed] })
+}
